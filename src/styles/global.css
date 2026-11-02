@@ -1,0 +1,221 @@
+@import 'tailwindcss';
+
+/*
+  Palette: navy ink on a cool, slightly green-grey field, with one amber
+  accent borrowed from network link lights. Amber is used for graphics;
+  amber-ink is the text-safe version.
+*/
+:root {
+  --field: #eef2f1;
+  --panel: #ffffff;
+  --ink: #14233a;
+  --muted: #4e5d6c;
+  --rule: #c9d3d6;
+  --amber: #d9930d;
+  --amber-ink: #8a5800;
+  --band: #14233a;
+  --on-band: #eef2f1;
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --field: #0f1b2b;
+    --panel: #16253a;
+    --ink: #e6ecef;
+    --muted: #a3b1be;
+    --rule: #2a3b52;
+    --amber: #f0ae3c;
+    --amber-ink: #f0ae3c;
+    --band: #1b2d45;
+    --on-band: #e6ecef;
+    color-scheme: dark;
+  }
+}
+
+:root[data-theme='dark'] {
+  --field: #0f1b2b;
+  --panel: #16253a;
+  --ink: #e6ecef;
+  --muted: #a3b1be;
+  --rule: #2a3b52;
+  --amber: #f0ae3c;
+  --amber-ink: #f0ae3c;
+  --band: #1b2d45;
+  --on-band: #e6ecef;
+  color-scheme: dark;
+}
+
+@theme inline {
+  --color-field: var(--field);
+  --color-panel: var(--panel);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-rule: var(--rule);
+  --color-amber: var(--amber);
+  --color-amber-ink: var(--amber-ink);
+  --color-band: var(--band);
+  --color-on-band: var(--on-band);
+  --font-sans: 'Archivo Variable', ui-sans-serif, system-ui, sans-serif;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    background: var(--field);
+    color: var(--ink);
+    font-family: var(--font-sans);
+    font-size: 1.0625rem;
+    line-height: 1.6;
+    font-stretch: 100%;
+    -webkit-font-smoothing: antialiased;
+    /* German compound words can be longer than a narrow column on small screens. */
+    overflow-wrap: break-word;
+  }
+  ::selection {
+    background: var(--amber);
+    color: #14233a;
+  }
+  :focus-visible {
+    outline: 2px solid var(--amber);
+    outline-offset: 3px;
+    border-radius: 2px;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+  }
+}
+
+@layer components {
+  /* Headings use Archivo's expanded width as the page's typographic voice. */
+  .display {
+    font-stretch: 125%;
+    font-weight: 750;
+    letter-spacing: -0.01em;
+    line-height: 1.02;
+  }
+  .section-title {
+    font-stretch: 125%;
+    font-weight: 700;
+    font-size: clamp(1.625rem, 3.2vw, 2.125rem);
+    line-height: 1.15;
+    letter-spacing: -0.005em;
+  }
+  .wrap {
+    width: 100%;
+    max-width: 72rem;
+    margin-inline: auto;
+    padding-inline: 1rem;
+  }
+  @media (min-width: 640px) {
+    .wrap {
+      padding-inline: 2rem;
+    }
+  }
+  .prose-width {
+    max-width: 38rem;
+  }
+  /*
+    Each section fills at least one screen below the sticky header (h-16).
+    svh ignores mobile browser toolbars, so the height doesn't jump while scrolling;
+    the vh line is a fallback for older browsers. Taller sections still grow.
+  */
+  .screen {
+    min-height: calc(100vh - 4rem);
+    min-height: calc(100svh - 4rem);
+  }
+  .link {
+    text-decoration: underline;
+    text-decoration-color: var(--amber);
+    text-decoration-thickness: 2px;
+    text-underline-offset: 4px;
+  }
+  .link:hover {
+    color: var(--amber-ink);
+  }
+  /*
+    Scroll spotlight: as an element marked .focus passes through the middle of the
+    screen, the script in HomePage.astro adds .is-focused and it grows slightly.
+    Children marked .focus-accent turn amber; .focus-card adds an amber ring and
+    .focus-rule turns its border amber. Growing from the left edge keeps it inside
+    the page gutter, so phones never scroll sideways.
+  */
+  .focus {
+    transform-origin: left center;
+    transition:
+      transform 500ms cubic-bezier(0.2, 0.7, 0.2, 1),
+      box-shadow 500ms,
+      border-color 500ms;
+  }
+  .focus.is-focused {
+    transform: scale(1.03);
+  }
+  .focus .focus-accent {
+    transition: color 500ms;
+  }
+  /* For rows with divider lines: the contents grow but the row and its line stay put. */
+  .focus.focus-inner.is-focused {
+    transform: none;
+  }
+  .focus-inner > * {
+    transform-origin: left center;
+    transition: transform 500ms cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+  .focus-inner.is-focused > * {
+    transform: scale(1.03);
+  }
+  .focus.is-focused .focus-accent {
+    color: var(--amber-ink);
+  }
+  .focus-card.is-focused {
+    box-shadow:
+      0 0 0 2px var(--amber),
+      0 18px 40px -22px rgb(11 20 32 / 0.55);
+  }
+  .focus-rule.is-focused {
+    border-color: var(--amber);
+  }
+  /* Visitors who turn off motion still get the color change, without the movement. */
+  @media (prefers-reduced-motion: reduce) {
+    .focus,
+    .focus .focus-accent {
+      transition: none;
+    }
+    .focus.is-focused,
+    .focus-inner.is-focused > * {
+      transform: none;
+    }
+    .focus-inner > * {
+      transition: none;
+    }
+  }
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 2.875rem;
+    padding: 0.625rem 1.25rem;
+    border-radius: 0.375rem;
+    font-weight: 600;
+    font-stretch: 110%;
+    border: 1.5px solid var(--ink);
+    transition: background-color 150ms, color 150ms;
+  }
+  .btn-primary {
+    background: var(--ink);
+    color: var(--field);
+  }
+  .btn-primary:hover {
+    background: transparent;
+    color: var(--ink);
+  }
+  .btn-secondary:hover {
+    background: var(--ink);
+    color: var(--field);
+  }
+}

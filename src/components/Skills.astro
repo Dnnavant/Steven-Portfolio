@@ -1,0 +1,17 @@
+---
+import Section from './Section.astro';
+import { useI18n } from '../i18n/ui';
+
+const { t, c } = useI18n(Astro.currentLocale);
+---
+
+<Section id="skills" title={t.skillsTitle} intro={t.skillsIntro}>
+  <dl class="divide-y divide-rule border-y border-rule">
+    {c.skills.map((s) => (
+      <div class="focus focus-inner grid gap-1 py-4 lg:grid-cols-[13rem_1fr] lg:gap-6">
+        <dt class="focus-accent font-semibold [font-stretch:108%]">{s.area}</dt>
+        <dd class="min-w-0 hyphens-auto break-words text-muted">{s.items.join(', ')}</dd>
+      </div>
+    ))}
+  </dl>
+</Section>

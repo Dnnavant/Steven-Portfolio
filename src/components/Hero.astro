@@ -1,0 +1,29 @@
+---
+import Topology from './Topology.astro';
+import { profile, environment } from '../data/resume';
+import { pagePath, useI18n } from '../i18n/ui';
+
+const { lang, t, c } = useI18n(Astro.currentLocale);
+---
+
+<section id="top" class="screen wrap grid content-center items-center gap-10 pb-16 pt-12 md:grid-cols-[1.05fr_1fr] md:gap-8 md:pb-24 md:pt-20">
+  <div>
+    <h1 class="display text-[clamp(2.9rem,8.5vw,5.75rem)]">{profile.name}</h1>
+    <p class="mt-4 text-[clamp(1.25rem,2.4vw,1.6rem)] font-semibold [font-stretch:115%]">
+      {c.title}
+    </p>
+    <p class="prose-width mt-6 text-lg text-muted md:text-xl md:leading-relaxed">{c.pitch}</p>
+    <p class="mt-4 text-muted">{t.basedIn(c.veteran, profile.location)}</p>
+    <div class="mt-8 flex flex-wrap gap-3">
+      <a href={pagePath(lang, 'contact')} class="btn btn-primary">{t.heroPrimary}</a>
+      <a href="#experience" class="btn btn-secondary">{t.heroSecondary}</a>
+    </div>
+  </div>
+
+  <figure class="mx-auto w-full max-w-[34rem]">
+    <Topology />
+    <figcaption class="mt-2 text-center text-[0.95rem] leading-snug text-muted">
+      {t.heroCaption(environment.sites, environment.servers, environment.people)}
+    </figcaption>
+  </figure>
+</section>

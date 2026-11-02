@@ -1,0 +1,193 @@
+---
+import { profile } from '../data/resume';
+import { languages, pagePath, useI18n, type Lang, type Page } from '../i18n/ui';
+
+interface Props {
+  page: Page;
+}
+const { page } = Astro.props;
+const { lang, t } = useI18n(Astro.currentLocale);
+
+// Section links point at the home page so they also work from the contact page.
+const home = pagePath(lang);
+const contactHref = pagePath(lang, 'contact');
+const links = [
+  { href: `${home}#about`, label: t.nav.about },
+  { href: `${home}#systems`, label: t.nav.systems },
+  { href: `${home}#experience`, label: t.nav.experience },
+  { href: `${home}#projects`, label: t.nav.projects },
+  { href: `${home}#skills`, label: t.nav.skills },
+  { href: contactHref, label: t.nav.contact },
+];
+const onContact = page === 'contact';
+const allLangs = Object.keys(languages) as Lang[];
+---
+
+<header class="sticky top-0 z-40 border-b border-rule bg-field/90 backdrop-blur supports-[backdrop-filter]:bg-field/75">
+  <div class="wrap flex h-16 items-center justify-between gap-3">
+    <a href={home} class="whitespace-nowrap font-bold [font-stretch:125%]">{profile.name}</a>
+
+    <nav aria-label={t.navLabel} class="hidden lg:block">
+      <ul class="flex items-center gap-7 text-[0.95rem]">
+        {links.map((l) => (
+          <li>
+            <a href={l.href} aria-current={l.href === contactHref && onContact ? 'true' : undefined} class="nav-link whitespace-nowrap text-muted transition-colors hover:text-ink aria-[current=true]:text-ink aria-[current=true]:underline aria-[current=true]:decoration-amber aria-[current=true]:decoration-2 aria-[current=true]:underline-offset-8">{l.label}</a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+
+    <div class="flex items-center gap-1">
+      <!-- Language picker: plain links in a disclosure, so it works without JavaScript. -->
+      <details class="lang-picker relative" data-lang-picker>
+        <summary
+          class="flex h-10 cursor-pointer list-none items-center gap-1.5 rounded-md px-2 text-[0.95rem] font-semibold text-muted hover:bg-panel hover:text-ink [&::-webkit-details-marker]:hidden"
+          aria-label={`${t.language}: ${languages[lang].label}`}
+        >
+          <svg class="h-[1.15rem] w-[1.15rem]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true">
+            <circle cx="12" cy="12" r="9" />
+            <path d="M3 12h18M12 3c2.5 2.6 3.8 5.6 3.8 9s-1.3 6.4-3.8 9c-2.5-2.6-3.8-5.6-3.8-9S9.5 5.6 12 3Z" />
+          </svg>
+          <span>{languages[lang].short}</span>
+        </summary>
+        <ul class="absolute right-0 top-full z-50 mt-1 min-w-[10rem] overflow-hidden rounded-md border border-rule bg-panel py-1 shadow-lg">
+          {allLangs.map((l) => (
+            <li>
+              <a
+                href={pagePath(l, page)}
+                hreflang={l}
+                lang={l}
+                aria-current={l === lang ? 'true' : undefined}
+                class="flex items-center justify-between gap-4 px-4 py-2.5 hover:bg-field aria-[current=true]:font-semibold"
+              >
+                {languages[l].label}
+                <span class="text-[0.85rem] text-muted">{languages[l].short}</span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </details>
+
+      <button
+        type="button"
+        id="theme-toggle"
+        class="grid h-10 w-10 place-items-center rounded-md text-muted hover:bg-panel hover:text-ink"
+        aria-label={t.themeToDark}
+        data-label-dark={t.themeToDark}
+        data-label-light={t.themeToLight}
+      >
+        <svg class="theme-icon-sun h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+          <circle cx="12" cy="12" r="4.2" />
+          <path stroke-linecap="round" d="M12 2.5v2.2M12 19.3v2.2M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6" />
+        </svg>
+        <svg class="theme-icon-moon h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+          <path stroke-linejoin="round" d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5Z" />
+        </svg>
+      </button>
+      <button
+        type="button"
+        id="menu-toggle"
+        class="grid h-10 w-10 place-items-center rounded-md text-muted hover:bg-panel hover:text-ink lg:hidden"
+        aria-label={t.menuOpen}
+        aria-expanded="false"
+        aria-controls="mobile-nav"
+        data-label-open={t.menuOpen}
+        data-label-close={t.menuClose}
+      >
+        <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true">
+          <path class="menu-icon-open" d="M4 7h16M4 12h16M4 17h16" />
+          <path class="menu-icon-close" d="M6 6l12 12M18 6L6 18" />
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Phones and tablets: the section links collapse into this panel. -->
+  <nav id="mobile-nav" aria-label={t.navLabel} class="hidden border-t border-rule bg-field lg:hidden">
+    <ul class="wrap py-2">
+      {links.map((l) => (
+        <li>
+          <a href={l.href} class="block py-3 text-lg font-semibold [font-stretch:110%] hover:text-amber-ink">{l.label}</a>
+        </li>
+      ))}
+    </ul>
+  </nav>
+</header>
+
+<style>
+  /* Show the icon for the theme you would switch to. */
+  .theme-icon-sun { display: none; }
+  :global(:root[data-theme='dark']) .theme-icon-sun { display: block; }
+  :global(:root[data-theme='dark']) .theme-icon-moon { display: none; }
+  @media (prefers-color-scheme: dark) {
+    :global(:root:not([data-theme='light'])) .theme-icon-sun { display: block; }
+    :global(:root:not([data-theme='light'])) .theme-icon-moon { display: none; }
+  }
+  .menu-icon-close { display: none; }
+  [aria-expanded='true'] .menu-icon-open { display: none; }
+  [aria-expanded='true'] .menu-icon-close { display: block; }
+</style>
+
+<script>
+  const btn = document.getElementById('theme-toggle');
+  const root = document.documentElement;
+  const isDark = () =>
+    root.dataset.theme === 'dark' ||
+    (!root.dataset.theme && window.matchMedia('(prefers-color-scheme: dark)').matches);
+  const label = () =>
+    btn?.setAttribute('aria-label', (isDark() ? btn.dataset.labelLight : btn.dataset.labelDark) ?? '');
+  label();
+  btn?.addEventListener('click', () => {
+    const next = isDark() ? 'light' : 'dark';
+    root.dataset.theme = next;
+    try { localStorage.setItem('theme', next); } catch (e) {}
+    label();
+  });
+
+  // Mobile menu: toggle the panel, and close it after a link is picked or on Escape.
+  const menuBtn = document.getElementById('menu-toggle');
+  const menu = document.getElementById('mobile-nav');
+  const setMenu = (open: boolean) => {
+    menu?.classList.toggle('hidden', !open);
+    menuBtn?.setAttribute('aria-expanded', String(open));
+    menuBtn?.setAttribute('aria-label', (open ? menuBtn.dataset.labelClose : menuBtn.dataset.labelOpen) ?? '');
+  };
+  menuBtn?.addEventListener('click', () => setMenu(menuBtn.getAttribute('aria-expanded') !== 'true'));
+  menu?.querySelectorAll('a').forEach((a) => a.addEventListener('click', () => setMenu(false)));
+
+  // Language picker: close on a click elsewhere or on Escape.
+  const picker = document.querySelector<HTMLDetailsElement>('[data-lang-picker]');
+  document.addEventListener('click', (e) => {
+    if (picker?.open && !picker.contains(e.target as Node)) picker.open = false;
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key !== 'Escape') return;
+    if (menuBtn?.getAttribute('aria-expanded') === 'true') {
+      setMenu(false);
+      menuBtn.focus();
+    }
+    if (picker?.open) {
+      picker.open = false;
+      picker.querySelector('summary')?.focus();
+    }
+  });
+
+  // Mark the nav link for the section currently on screen.
+  const navLinks = [...document.querySelectorAll<HTMLAnchorElement>('.nav-link')];
+  const target = (a: HTMLAnchorElement) => {
+    const url = new URL(a.href);
+    return url.pathname === location.pathname && url.hash ? document.querySelector<HTMLElement>(url.hash) : null;
+  };
+  const sections = navLinks.map(target).filter((el): el is HTMLElement => !!el);
+  const spy = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((e) => {
+        if (!e.isIntersecting) return;
+        navLinks.forEach((a) => a.setAttribute('aria-current', String(target(a) === e.target)));
+      });
+    },
+    { rootMargin: '-40% 0px -55% 0px' },
+  );
+  sections.forEach((s) => spy.observe(s));
+</script>

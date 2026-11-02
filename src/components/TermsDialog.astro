@@ -1,0 +1,97 @@
+---
+// First-visit popup: the visitor agrees to use the site's information lawfully,
+// then either continues or takes the call to action (contact Steven).
+// Agreement is remembered in this browser, so returning visitors aren't asked again.
+// Without JavaScript the popup never opens and the site stays readable.
+import { profile } from '../data/resume';
+import { pagePath, useI18n, withPageLinks } from '../i18n/ui';
+
+const { lang, t } = useI18n(Astro.currentLocale);
+---
+
+<dialog
+  id="terms-dialog"
+  class="m-auto w-[calc(100%-2rem)] max-w-lg rounded-lg border border-rule bg-panel p-0 text-ink shadow-2xl backdrop:bg-[#0b1420]/70 backdrop:backdrop-blur-sm"
+  aria-labelledby="terms-title"
+  aria-describedby="terms-desc"
+>
+  <div class="border-t-4 border-amber p-6 sm:p-8">
+    <p class="text-[0.95rem] font-semibold text-amber-ink">{t.termsKicker}</p>
+    <h2 id="terms-title" class="mt-1 text-[1.65rem] font-bold leading-tight [font-stretch:118%]">{t.termsTitle}</h2>
+    <div id="terms-desc" class="mt-4 space-y-3 leading-relaxed text-muted">
+      <p>{t.termsP1(profile.name)}</p>
+      <p>{t.termsP2}</p>
+      <p
+        class="[&_a]:font-semibold [&_a]:text-ink [&_a]:underline [&_a]:decoration-amber [&_a]:decoration-2 [&_a]:underline-offset-4"
+        set:html={withPageLinks(t.termsRead, lang)}
+      />
+    </div>
+
+    <label class="mt-6 flex cursor-pointer items-start gap-3 rounded-md border border-rule bg-field px-4 py-3.5">
+      <input type="checkbox" class="mt-1 h-5 w-5 shrink-0 accent-[var(--amber)]" data-terms-check />
+      <span class="font-semibold leading-snug [font-stretch:105%]">{t.termsCheck}</span>
+    </label>
+
+    <div class="mt-6 grid gap-3">
+      <a
+        href={pagePath(lang, 'contact')}
+        class="btn btn-primary justify-center text-center aria-disabled:pointer-events-none aria-disabled:opacity-45"
+        aria-disabled="true"
+        data-terms-agree
+      >
+        {t.termsCta}
+      </a>
+      <button
+        type="button"
+        class="btn btn-secondary justify-center disabled:pointer-events-none disabled:opacity-45"
+        disabled
+        data-terms-agree
+      >
+        {t.termsContinue}
+      </button>
+    </div>
+  </div>
+</dialog>
+
+<script>
+  const KEY = 'terms-agreed';
+  const dialog = document.getElementById('terms-dialog') as HTMLDialogElement | null;
+  const check = dialog?.querySelector<HTMLInputElement>('[data-terms-check]');
+  const actions = [...(dialog?.querySelectorAll<HTMLElement>('[data-terms-agree]') ?? [])];
+
+  let agreed = false;
+  try {
+    agreed = localStorage.getItem(KEY) === '1';
+  } catch {}
+
+  if (dialog && !agreed && typeof dialog.showModal === 'function') {
+    document.documentElement.style.overflow = 'hidden';
+    dialog.showModal();
+    check?.focus();
+
+    // Agreement is required, so Escape doesn't dismiss the popup.
+    dialog.addEventListener('cancel', (e) => e.preventDefault());
+
+    const sync = () =>
+      actions.forEach((el) => {
+        if (el instanceof HTMLButtonElement) el.disabled = !check?.checked;
+        else if (check?.checked) el.removeAttribute('aria-disabled');
+        else el.setAttribute('aria-disabled', 'true');
+      });
+    check?.addEventListener('change', sync);
+
+    actions.forEach((el) =>
+      el.addEventListener('click', (e) => {
+        if (!check?.checked) {
+          e.preventDefault();
+          return;
+        }
+        try {
+          localStorage.setItem(KEY, '1');
+        } catch {}
+        document.documentElement.style.overflow = '';
+        dialog.close();
+      }),
+    );
+  }
+</script>

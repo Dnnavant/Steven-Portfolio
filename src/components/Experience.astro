@@ -1,0 +1,54 @@
+---
+import Section from './Section.astro';
+import { useI18n } from '../i18n/ui';
+
+const { t, c } = useI18n(Astro.currentLocale);
+---
+
+<Section id="experience" title={t.experienceTitle}>
+  <ol class="relative space-y-14 border-l-2 border-rule pl-6 sm:pl-9">
+    {c.experience.map((job, j) => (
+      <li class="relative">
+        <span
+          class:list={[
+            'absolute top-2 h-3.5 w-3.5 rounded-full border-2 border-field',
+            '-left-[calc(1.5rem+8px)] sm:-left-[calc(2.25rem+8px)]',
+            job.current ? 'bg-amber' : 'bg-rule',
+          ]}
+          aria-hidden="true"
+        ></span>
+        <div class="focus">
+          <p class="text-[0.95rem] text-muted">{t.dateRange(job.start, job.end)}</p>
+          <h3 class="focus-accent mt-1 text-2xl font-bold [font-stretch:115%]">{job.role}</h3>
+          <p class="mt-0.5 font-semibold text-muted">{job.company}, {job.location}</p>
+        </div>
+        {job.progression && <p class="mt-3 italic text-muted">{job.progression}</p>}
+        {job.summary && <p class="prose-width mt-3 text-lg leading-relaxed">{job.summary}</p>}
+
+        {job.groups && (
+          <div class="mt-6 divide-y divide-rule rounded-lg border border-rule bg-panel">
+            {job.groups.map((g, i) => (
+              <details class="group" open={j === 0 && i === 0}>
+                <summary class="flex cursor-pointer list-none items-center justify-between gap-4 px-5 py-4 font-semibold [font-stretch:108%] hover:text-amber-ink [&::-webkit-details-marker]:hidden">
+                  <span>{g.area}</span>
+                  <svg class="h-4 w-4 shrink-0 text-muted transition-transform duration-200 group-open:rotate-45" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                    <path stroke-linecap="round" d="M8 2v12M2 8h12" />
+                  </svg>
+                </summary>
+                <ul class="list-disc space-y-2 px-5 pb-5 pl-10 marker:text-amber">
+                  {g.points.map((pt) => <li>{pt}</li>)}
+                </ul>
+              </details>
+            ))}
+          </div>
+        )}
+
+        {job.points && (
+          <ul class="prose-width mt-4 list-disc space-y-2 pl-5 marker:text-amber">
+            {job.points.map((pt) => <li>{pt}</li>)}
+          </ul>
+        )}
+      </li>
+    ))}
+  </ol>
+</Section>

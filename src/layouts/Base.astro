@@ -1,0 +1,102 @@
+---
+// The font is served from this site rather than Google Fonts, so visitors' browsers
+// don't contact a third party, and the security policy can stay 'self' only.
+import '@fontsource-variable/archivo/wdth.css';
+import '../styles/global.css';
+import { getImage } from 'astro:assets';
+import TermsDialog from '../components/TermsDialog.astro';
+import photo from '../assets/steven-avant.png';
+import { profile } from '../data/resume';
+import { languages, pagePath, useI18n, type Lang, type Page } from '../i18n/ui';
+
+interface Props {
+  page: Page;
+  title?: string;
+  description?: string;
+}
+
+const { lang, t, c } = useI18n(Astro.currentLocale);
+const {
+  page,
+  title = t.metaHomeTitle(profile.name, c.title),
+  description = t.metaHomeDesc(profile.name, c.title, c.veteran, profile.location),
+} = Astro.props;
+
+const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
+// Preview image when the site is shared on LinkedIn, in messages, and so on.
+const shareImage = new URL((await getImage({ src: photo, width: 1200, format: 'jpg' })).src, Astro.site).href;
+const canonical = new URL(Astro.url.pathname, Astro.site);
+const alternates = (Object.keys(languages) as Lang[]).map((l) => ({
+  lang: l,
+  href: new URL(pagePath(l, page), Astro.site).href,
+}));
+---
+
+<!doctype html>
+<html lang={lang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    {alternates.map((a) => <link rel="alternate" hreflang={a.lang} href={a.href} />)}
+    <link rel="alternate" hreflang="x-default" href={alternates[0].href} />
+    <link rel="icon" type="image/svg+xml" href={`${base}favicon.svg`} />
+
+    <meta property="og:type" content="profile" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:locale" content={{ en: 'en_US', es: 'es_ES', de: 'de_DE' }[lang]} />
+    <meta property="og:image" content={shareImage} />
+    <meta property="og:image:alt" content={t.photoAlt(profile.name)} />
+    <meta name="twitter:card" content="summary" />
+
+    <meta name="theme-color" content="#eef2f1" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0f1b2b" media="(prefers-color-scheme: dark)" />
+
+    <!-- Don't send this page's address to other sites when visitors follow a link. -->
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
+
+    <!--
+      Refuse to be shown inside another site's frame (clickjacking). GitHub Pages can't
+      send the frame-ancestors header, so the page hides itself and tries to break out.
+    -->
+    <script is:inline>
+      if (window.top !== window.self) {
+        document.documentElement.style.visibility = 'hidden';
+        try { window.top.location.replace(window.location.href); } catch (e) {}
+      }
+    </script>
+
+    <!-- Apply a saved theme choice before first paint to avoid a flash. -->
+    <script is:inline>
+      try {
+        const t = localStorage.getItem('theme');
+        if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t;
+      } catch (e) {}
+    </script>
+
+    <script type="application/ld+json" set:html={JSON.stringify({
+      '@context': 'https://schema.org',
+      '@type': 'Person',
+      name: profile.name,
+      jobTitle: c.title,
+      image: shareImage,
+      address: { '@type': 'PostalAddress', addressLocality: 'Virginia Beach', addressRegion: 'VA', addressCountry: 'US' },
+      sameAs: [profile.linkedin],
+    })} />
+  </head>
+  <body class="min-h-screen">
+    <a
+      href="#main"
+      class="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded focus:bg-ink focus:px-4 focus:py-2 focus:text-field"
+    >
+      {t.skip}
+    </a>
+    <slot />
+    <!-- The legal pages stay readable so visitors can read the terms before agreeing. -->
+    {page !== 'privacy' && page !== 'terms' && <TermsDialog />}
+  </body>
+</html>

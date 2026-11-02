@@ -1,0 +1,35 @@
+---
+import { Picture } from 'astro:assets';
+import Section from './Section.astro';
+import photo from '../assets/steven-avant.png';
+import { profile } from '../data/resume';
+import { useI18n } from '../i18n/ui';
+
+const { t, c } = useI18n(Astro.currentLocale);
+---
+
+<Section id="about" title={t.aboutTitle}>
+  <!-- Phones: photo, bio, facts. Wide screens: bio on the left, photo above the facts on the right. -->
+  <div class="grid gap-10 lg:grid-cols-[1fr_16rem] lg:content-start lg:gap-y-8">
+    <Picture
+      src={photo}
+      alt={t.photoAlt(profile.name)}
+      formats={['avif', 'webp']}
+      fallbackFormat="jpg"
+      widths={[256, 512, 768]}
+      sizes="(min-width: 1024px) 16rem, 14rem"
+      class="focus focus-card aspect-square w-56 rounded-lg border border-rule object-cover object-[50%_25%] lg:col-start-2 lg:row-start-1 lg:w-full"
+    />
+    <div class="prose-width space-y-5 text-lg leading-relaxed lg:col-start-1 lg:row-span-2 lg:row-start-1">
+      {c.about.map((p) => <p>{p}</p>)}
+    </div>
+    <dl class="space-y-4 border-l-2 border-amber pl-5 text-[0.98rem] lg:col-start-2 lg:row-start-2">
+      {c.facts.map((f) => (
+        <div class="focus">
+          <dt class="text-muted">{f.label}</dt>
+          <dd class="focus-accent font-semibold">{f.value}</dd>
+        </div>
+      ))}
+    </dl>
+  </div>
+</Section>

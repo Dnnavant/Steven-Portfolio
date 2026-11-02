@@ -1,0 +1,63 @@
+---
+// The home page, shared by every language. The routes in src/pages/ just render this;
+// the language comes from the URL (/, /es/, /de/).
+import Base from '../layouts/Base.astro';
+import Header from '../components/Header.astro';
+import Hero from '../components/Hero.astro';
+import About from '../components/About.astro';
+import SystemsTour from '../components/SystemsTour.astro';
+import Experience from '../components/Experience.astro';
+import Projects from '../components/Projects.astro';
+import Skills from '../components/Skills.astro';
+import Education from '../components/Education.astro';
+import Contact from '../components/Contact.astro';
+import Footer from '../components/Footer.astro';
+---
+
+<Base page="home">
+  <Header page="home" />
+  <main id="main">
+    <Hero />
+    <About />
+    <SystemsTour />
+    <Experience />
+    <Projects />
+    <Skills />
+    <Education />
+    <Contact />
+  </main>
+  <Footer />
+</Base>
+
+<script>
+  // Scroll spotlight (styles in global.css): the .focus element nearest the middle of
+  // the screen is highlighted, along with any neighbor in the same row (the project
+  // cards sit side by side on wider screens). Without JavaScript nothing changes.
+  const items = [...document.querySelectorAll<HTMLElement>('.focus')];
+  let lit: HTMLElement[] = [];
+  let queued = false;
+
+  const update = () => {
+    queued = false;
+    const mid = innerHeight / 2;
+    let best: { el: HTMLElement; top: number } | null = null;
+    let bestDist = innerHeight * 0.12; // nothing lights up in the gaps between items
+    const rects = items.map((el) => ({ el, r: el.getBoundingClientRect() }));
+    for (const { el, r } of rects) {
+      const dist = r.top > mid ? r.top - mid : r.bottom < mid ? mid - r.bottom : 0;
+      if (dist < bestDist) [best, bestDist] = [{ el, top: r.top }, dist];
+    }
+    const next = best ? rects.filter(({ r }) => Math.abs(r.top - best!.top) < 2).map(({ el }) => el) : [];
+    lit.filter((el) => !next.includes(el)).forEach((el) => el.classList.remove('is-focused'));
+    next.forEach((el) => el.classList.add('is-focused'));
+    lit = next;
+  };
+  const queue = () => {
+    if (queued) return;
+    queued = true;
+    requestAnimationFrame(update);
+  };
+  addEventListener('scroll', queue, { passive: true });
+  addEventListener('resize', queue);
+  update();
+</script>

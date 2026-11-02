@@ -1,0 +1,325 @@
+---
+// Scroll-driven tour: the network map stays pinned while each step scrolls past,
+// adding one layer of Steven's work (network, security, virtualization, backup,
+// voice, automation). Without JavaScript every layer is shown at once.
+import { environment } from '../data/resume';
+import { W, H, cx, cy, siteLayout, rack } from '../lib/topology';
+import { fill, useI18n } from '../i18n/ui';
+
+const { t, c } = useI18n(Astro.currentLocale);
+const tour = c.tour;
+
+const sites = siteLayout(environment.sites);
+const units = Array.from({ length: rack.units }, (_, u) => u);
+
+// Side racks appear in the virtualization layer: three hypervisor platforms in all.
+const side = { w: 44, h: 70 };
+const sideRacks = [cx - rack.w / 2 - 10 - side.w, cx + rack.w / 2 + 10];
+
+// Two sites on a call through the core, for the voice layer.
+const callA = sites[4];
+const callB = sites[13];
+const callPath = `M${callA.x} ${callA.y} L${cx} ${cy} L${callB.x} ${callB.y}`;
+
+// Offsite backup target for the backup layer.
+const vault = { x: 452, y: 18, w: 54, h: 42 };
+const backupPath = `M${cx} ${cy - rack.h / 2} C ${cx + 40} ${cy - 150}, ${vault.x - 60} ${vault.y + 70}, ${vault.x} ${vault.y + vault.h / 2}`;
+---
+
+<section id="systems" class="screen scroll-mt-16 border-t border-rule" aria-labelledby="systems-title">
+  <div class="wrap pt-16 md:pt-24">
+    <h2 id="systems-title" class="section-title">{t.tourTitle}</h2>
+    <p class="prose-width mt-3 text-lg text-muted">{t.tourIntro}</p>
+  </div>
+
+  <div class="wrap grid md:grid-cols-[1.1fr_1fr] md:gap-12">
+    <!-- Pinned map -->
+    <div class="sticky top-16 z-10 -mx-4 bg-field px-4 pb-3 pt-4 md:top-20 md:mx-0 md:h-[calc(100svh-6rem)] md:px-0 md:pb-0 md:pt-0">
+      <div class="flex h-full flex-col justify-center">
+        <svg
+          viewBox={`0 0 ${W} ${H}`}
+          class="tour-map show-all mx-auto h-auto max-h-[30svh] w-full md:max-h-[70svh]"
+          role="img"
+          aria-labelledby="tour-title"
+          data-tour-map
+        >
+          <title id="tour-title">{t.tourMapTitle}</title>
+
+          <!-- Base: links and sites -->
+          <g class="base-links">
+            {sites.map((s) => <line x1={cx} y1={cy} x2={s.x} y2={s.y} />)}
+          </g>
+
+          <!-- Network: traffic flowing on every link -->
+          <g class="layer layer-network">
+            {sites.map((s) => <line class="flow" x1={cx} y1={cy} x2={s.x} y2={s.y} />)}
+          </g>
+
+          <!-- Backup: replication path to an offsite copy -->
+          <g class="layer layer-backup">
+            <path d={backupPath} class="replica" />
+            <g transform={`translate(${vault.x} ${vault.y})`}>
+              <rect width={vault.w} height={vault.h} rx="5" class="vault" />
+              <rect x="9" y="11" width={vault.w - 18} height="6" rx="1.5" class="vault-slot" />
+              <rect x="9" y="23" width={vault.w - 18} height="6" rx="1.5" class="vault-slot" />
+            </g>
+            <text x={vault.x + vault.w / 2} y={vault.y + vault.h + 16} text-anchor="middle" class="map-label">{t.offsite}</text>
+          </g>
+
+          <!-- Voice: a call between two stores through the core -->
+          <g class="layer layer-voice">
+            <path d={callPath} class="call" />
+            <circle r="5" class="pulse call-pulse">
+              <animateMotion dur="2.4s" repeatCount="indefinite" path={callPath} />
+            </circle>
+          </g>
+
+          <!-- Automation: work fanning out from the core to every site -->
+          <g class="layer layer-automation">
+            {sites.map((s) => (
+              <circle r="3.5" class="pulse">
+                <animateMotion
+                  dur="1.8s"
+                  begin={`${(s.i * 0.09).toFixed(2)}s`}
+                  repeatCount="indefinite"
+                  path={`M${cx} ${cy} L${s.x} ${s.y}`}
+                />
+              </circle>
+            ))}
+          </g>
+
+          <!-- Sites, with firewall rings in the security layer -->
+          <g>
+            {sites.map((s) => (
+              <g transform={`translate(${s.x} ${s.y})`}>
+                <circle r="16" class="layer layer-security shield" />
+                <rect x="-9" y="-9" width="18" height="18" rx="3"
+                  class:list={['site', (s.i === callA.i || s.i === callB.i) && 'call-site']} />
+                <circle r="3" class="led" />
+              </g>
+            ))}
+          </g>
+
+          <!-- Virtualization: two more hypervisor hosts beside the core -->
+          <g class="layer layer-virtualization">
+            {sideRacks.map((x) => (
+              <g transform={`translate(${x} ${cy - side.h / 2})`}>
+                <rect width={side.w} height={side.h} rx="4" class="rack" />
+                {[0, 1, 2, 3].map((u) => (
+                  <rect x="6" y={8 + u * 15} width={side.w - 12} height="9" rx="1.5" class="vm" style={`--d:${u * 90}ms`} />
+                ))}
+              </g>
+            ))}
+          </g>
+
+          <!-- Core data center -->
+          <g transform={`translate(${cx - rack.w / 2} ${cy - rack.h / 2})`}>
+            <rect x="-7" y="-7" width={rack.w + 14} height={rack.h + 14} rx="9" class="layer layer-security core-shield" />
+            <rect width={rack.w} height={rack.h} rx="5" class="rack" />
+            {units.map((u) => (
+              <g transform={`translate(8 ${10 + u * 14})`}>
+                <rect width={rack.w - 16} height="9" rx="1.5" class="unit" />
+                <rect width={rack.w - 16} height="9" rx="1.5" class="layer layer-virtualization vm" style={`--d:${u * 70}ms`} />
+              </g>
+            ))}
+          </g>
+          <text x={cx} y={cy + rack.h / 2 + 22} text-anchor="middle" class="map-label">{t.dataCenter}</text>
+        </svg>
+
+        <div class="mt-3 md:mt-5">
+          <p
+            class="text-center text-[0.95rem] font-semibold [font-stretch:110%]"
+            aria-live="polite"
+            data-tour-status
+            data-template={t.tourStatus}
+          >
+            {t.tourAll(tour.length)}
+          </p>
+          <div class="mt-2 flex justify-center gap-1.5" role="group" aria-label={t.tourJump}>
+            {tour.map((step, i) => (
+              <button
+                type="button"
+                class="tour-dot h-2 w-8 rounded-full bg-rule transition-colors sm:w-10"
+                aria-label={fill(t.tourShow, { i: i + 1, title: step.title })}
+                data-tour-jump={i}
+              ></button>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Steps -->
+    <ol class="relative pb-[20svh] md:pb-[30svh]">
+      {tour.map((step, i) => (
+        <li class="tour-step flex min-h-[65svh] items-end py-8 md:min-h-[85svh] md:items-center" data-tour-step={i} data-layer={step.layer}>
+          <div class="rounded-lg border border-rule bg-panel p-6 sm:p-7">
+            <p class="text-[0.95rem] font-semibold text-amber-ink">{fill(t.tourLayer, { i: i + 1, n: tour.length })}</p>
+            <h3 class="mt-1 text-2xl font-bold leading-tight [font-stretch:115%]">{step.title}</h3>
+            <p class="mt-3 text-lg leading-relaxed">{step.body}</p>
+            <p class="mt-4 text-[0.95rem] text-muted">{step.tools.join(', ')}</p>
+          </div>
+        </li>
+      ))}
+    </ol>
+  </div>
+</section>
+
+<style>
+  .tour-map line,
+  .tour-map path {
+    fill: none;
+  }
+  .base-links line {
+    stroke: var(--rule);
+    stroke-width: 1.5;
+  }
+  .site {
+    fill: var(--panel);
+    stroke: var(--ink);
+    stroke-width: 1.5;
+    transition: fill 400ms;
+  }
+  .led { fill: var(--amber); }
+  .rack { fill: var(--ink); }
+  .unit { fill: var(--field); opacity: 0.16; }
+  .map-label {
+    fill: var(--muted);
+    font-size: 14px;
+    font-weight: 600;
+    font-stretch: 112%;
+  }
+
+  /* Layers fade in as they are added. */
+  .layer {
+    opacity: 0;
+    transition: opacity 500ms ease;
+  }
+  .show-all .layer,
+  .on-network .layer-network,
+  .on-security .layer-security,
+  .on-virtualization .layer-virtualization,
+  .on-backup .layer-backup,
+  .on-voice .layer-voice,
+  .on-automation .layer-automation {
+    opacity: 1;
+  }
+
+  .flow {
+    stroke: var(--amber);
+    stroke-width: 2;
+    stroke-dasharray: 3 9;
+    stroke-linecap: round;
+    opacity: 0.85;
+  }
+  .shield {
+    fill: none;
+    stroke: var(--amber);
+    stroke-width: 2;
+  }
+  .core-shield {
+    fill: none;
+    stroke: var(--amber);
+    stroke-width: 2.5;
+  }
+  .vm {
+    fill: var(--amber);
+  }
+  .replica {
+    stroke: var(--amber);
+    stroke-width: 2.5;
+    stroke-dasharray: 7 6;
+    stroke-linecap: round;
+  }
+  .vault { fill: var(--panel); stroke: var(--ink); stroke-width: 1.5; }
+  .vault-slot { fill: var(--amber); }
+  .call {
+    stroke: var(--amber);
+    stroke-width: 3;
+    stroke-linejoin: round;
+    stroke-linecap: round;
+  }
+  .on-voice .call-site { fill: var(--amber); }
+  .pulse { fill: var(--amber); stroke: var(--panel); stroke-width: 1.5; }
+
+  /* Motion belongs to the current layer only, and only if the visitor allows it. */
+  .pulse { display: none; }
+  @media (prefers-reduced-motion: no-preference) {
+    .is-network .flow { animation: flow 900ms linear infinite; }
+    .is-backup .replica { animation: flow 700ms linear infinite reverse; }
+    .is-voice .call-pulse,
+    .is-automation .pulse { display: block; }
+    .is-virtualization .vm { animation: boot 900ms ease-out both; animation-delay: var(--d); }
+  }
+  @keyframes flow { to { stroke-dashoffset: -24; } }
+  @keyframes boot { from { opacity: 0.15; } to { opacity: 1; } }
+  @media (prefers-reduced-motion: reduce) {
+    .layer, .site { transition: none; }
+  }
+
+  .tour-step > div {
+    transition: opacity 300ms, border-color 300ms;
+  }
+  .tour-active .tour-step > div { opacity: 0.45; }
+  .tour-active .tour-step[aria-current='step'] > div {
+    opacity: 1;
+    border-color: var(--amber);
+  }
+  .tour-dot[aria-current='true'] { background: var(--amber); }
+  .tour-dot:hover { background: var(--muted); }
+</style>
+
+<script>
+  const map = document.querySelector<SVGSVGElement>('[data-tour-map]');
+  const steps = [...document.querySelectorAll<HTMLElement>('[data-tour-step]')];
+  const dots = [...document.querySelectorAll<HTMLButtonElement>('[data-tour-jump]')];
+  const status = document.querySelector<HTMLElement>('[data-tour-status]');
+  const list = steps[0]?.parentElement;
+
+  if (map && steps.length) {
+    const layers = steps.map((s) => s.dataset.layer!);
+    const titles = steps.map((s) => s.querySelector('h3')?.textContent ?? '');
+    let current = -1;
+
+    const activate = (i: number) => {
+      if (i === current) return;
+      current = i;
+      map.classList.remove('show-all');
+      list?.classList.add('tour-active');
+      layers.forEach((layer, k) => {
+        map.classList.toggle(`on-${layer}`, k <= i);
+        map.classList.toggle(`is-${layer}`, k === i);
+      });
+      steps.forEach((s, k) => (k === i ? s.setAttribute('aria-current', 'step') : s.removeAttribute('aria-current')));
+      dots.forEach((d, k) => d.setAttribute('aria-current', String(k === i)));
+      if (status) {
+        // The wording comes from the page, so it matches the page's language.
+        status.textContent = (status.dataset.template ?? '')
+          .replace('{i}', String(i + 1))
+          .replace('{n}', String(steps.length))
+          .replace('{title}', titles[i]);
+      }
+    };
+
+    // A step becomes active when it crosses a band of the viewport: the middle on
+    // wide screens, and the lower part on phones where the map is pinned on top.
+    const wide = window.matchMedia('(min-width: 768px)').matches;
+    const io = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((e) => {
+          if (e.isIntersecting) activate(steps.indexOf(e.target as HTMLElement));
+        });
+      },
+      { rootMargin: wide ? '-45% 0px -45% 0px' : '-72% 0px -18% 0px' },
+    );
+    steps.forEach((s) => io.observe(s));
+    activate(0);
+
+    dots.forEach((d, i) =>
+      d.addEventListener('click', () => {
+        const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        steps[i].scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: wide ? 'center' : 'end' });
+      }),
+    );
+  }
+</script>

@@ -1,0 +1,26 @@
+---
+import Section from './Section.astro';
+import { useI18n } from '../i18n/ui';
+
+const { t, c } = useI18n(Astro.currentLocale);
+const { service } = c;
+---
+
+<Section id="education" title={t.educationTitle}>
+  <div class="grid gap-10 lg:grid-cols-[1fr_16rem]">
+    <ul class="space-y-6">
+      {c.education.map((e) => (
+        <li>
+          <h3 class="text-lg font-bold [font-stretch:112%]">{e.school}</h3>
+          <p class="text-muted">
+            {e.detail}{e.years && <span>, {e.years}</span>}
+          </p>
+        </li>
+      ))}
+    </ul>
+    <div class="focus border-l-2 border-amber pl-5">
+      <h3 class="focus-accent text-lg font-bold [font-stretch:112%]">{service.branch}</h3>
+      <p class="text-muted">{service.status}</p>
+    </div>
+  </div>
+</Section>

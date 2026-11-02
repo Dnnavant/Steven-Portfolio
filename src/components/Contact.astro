@@ -1,0 +1,20 @@
+---
+// Home page call to action. All contact goes through the contact page form.
+import { pagePath, useI18n } from '../i18n/ui';
+
+const { lang, t } = useI18n(Astro.currentLocale);
+const contactHref = pagePath(lang, 'contact');
+---
+
+<section id="contact" class="screen flex scroll-mt-16 flex-col justify-center bg-band py-16 text-on-band md:py-24" aria-labelledby="contact-title">
+  <div class="wrap">
+    <h2 id="contact-title" class="section-title">{t.contactTitle}</h2>
+    <p class="mt-3 max-w-xl text-lg opacity-85">{t.contactBody}</p>
+    <a
+      href={contactHref}
+      class="focus mt-8 inline-block [&.is-focused]:text-amber text-[clamp(1.6rem,5vw,3rem)] font-bold [font-stretch:118%] underline decoration-amber decoration-2 underline-offset-[6px] hover:text-amber"
+    >
+      {t.contactLink} <span aria-hidden="true">→</span>
+    </a>
+  </div>
+</section>

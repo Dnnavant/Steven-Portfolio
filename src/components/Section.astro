@@ -1,0 +1,21 @@
+---
+// Shared two-column section frame: title on the left on wide screens, content on the right.
+interface Props {
+  id: string;
+  title: string;
+  intro?: string;
+}
+const { id, title, intro } = Astro.props;
+---
+
+<section id={id} class="screen flex scroll-mt-16 flex-col justify-center border-t border-rule py-16 md:py-24" aria-labelledby={`${id}-title`}>
+  <div class="wrap grid gap-8 md:grid-cols-[15rem_1fr] md:gap-12">
+    <div>
+      <h2 id={`${id}-title`} class="section-title md:sticky md:top-24">{title}</h2>
+      {intro && <p class="mt-3 max-w-xs text-muted">{intro}</p>}
+    </div>
+    <div class="min-w-0">
+      <slot />
+    </div>
+  </div>
+</section>

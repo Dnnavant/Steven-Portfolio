@@ -1,0 +1,7 @@
+node_modules/
+dist/
+.astro/
+.DS_Store
+private/
+# Local settings, including the contact form address.
+.env
