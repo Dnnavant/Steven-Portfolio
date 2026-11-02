@@ -29,7 +29,7 @@ npm run preview
 | Buttons, labels, and messages in every language | `src/i18n/ui.ts` |
 | Steven's photo (About section and link previews; replace the file to change it) | `src/assets/steven-avant.png` |
 | LinkedIn link (footer) | `profile.linkedin` in `src/data/resume.ts` |
-| Contact form (delivery address set by `CONTACT_FORM_ID`; see below) | `src/views/ContactPage.astro` |
+| Contact form (Formspree ID in `profile.contactFormId` in `src/data/resume.ts`; see below) | `src/views/ContactPage.astro` |
 | First-visit acceptable-use popup | `src/components/TermsDialog.astro` |
 | Privacy Policy and Terms of Use (all three languages) | `src/data/legal/` |
 | Colors and fonts | `src/styles/global.css` |
@@ -61,13 +61,11 @@ As visitors scroll the home page, the key item nearest the middle of the screen 
 
 GitHub Pages can't send email, so the form goes through [Formspree](https://formspree.io), which emails each message to the inbox the Formspree form was created for. The site only contains the form's random ID, never an email address.
 
-1. Sign in at formspree.io and create a new form (for example "Steven Avant portfolio"). Formspree delivers to the email address you choose for that form and asks that address to confirm once.
+1. Sign in at formspree.io and create a new form (for example "Steven Avant portfolio") that delivers to Steven's email address. Formspree asks that address to confirm once.
 2. Copy the form's ID: the part after `/f/` in its endpoint (`https://formspree.io/f/abcdwxyz` → `abcdwxyz`).
-3. Put the ID in the `CONTACT_FORM_ID` setting:
-   - **On your computer:** in the `.env` file in this folder: `CONTACT_FORM_ID=abcdwxyz`. Git ignores this file.
-   - **On GitHub:** open **Settings → Secrets and variables → Actions**, go to the **Variables** tab (not Secrets), choose **New repository variable**, name it `CONTACT_FORM_ID`, and paste the ID.
+3. Paste it into `contactFormId` in `src/data/resume.ts`, then commit and push. The site redeploys with the form switched on.
 
-If the setting is missing or isn't a valid form ID, the build stops with a message pointing here, rather than publishing a form that goes nowhere. Every message also appears in the Formspree dashboard. In the form's settings, you can limit submissions to the site's domain (`dnnavant.github.io`) so other sites can't use the form.
+Until the ID is filled in, the contact page shows a short "almost ready" note with a LinkedIn button instead of the form, so the site can go live before the form is set up. The ID isn't secret: it appears in the page for anyone to see and doesn't reveal any email address. Every message also appears in the Formspree dashboard. In the form's settings, you can limit submissions to the site's domain (`dnnavant.github.io`) so other sites can't use the form.
 
 ## Deploy to GitHub Pages
 
@@ -82,8 +80,7 @@ If the setting is missing or isn't a valid form ID, the build stops with a messa
    git push -u origin main
    ```
 3. On GitHub, open the repository's **Settings → Pages** and set **Source** to **GitHub Actions**.
-4. Add the `CONTACT_FORM_ID` repository variable (see [Contact form setup](#contact-form-setup)).
-5. The workflow in `.github/workflows/deploy.yml` builds and deploys on every push to `main`. Watch it run in the **Actions** tab. The site will be at `https://<your-user>.github.io/steven-portfolio/`.
+4. The workflow in `.github/workflows/deploy.yml` builds and deploys on every push to `main`. Watch it run in the **Actions** tab. The site will be at `https://<your-user>.github.io/steven-portfolio/`.
 
 The workflow sets the correct base path automatically, so links work under `/steven-portfolio/`.
 

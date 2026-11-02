@@ -37,8 +37,6 @@ jobs:
           # Works for both https://<user>.github.io/<repo>/ and a custom domain.
           SITE_URL: ${{ steps.pages.outputs.origin }}
           BASE_PATH: ${{ steps.pages.outputs.base_path }}
-          # Set under Settings → Secrets and variables → Actions → Variables.
-          CONTACT_FORM_ID: ${{ vars.CONTACT_FORM_ID }}
 
       - uses: actions/upload-pages-artifact@v5
         with:

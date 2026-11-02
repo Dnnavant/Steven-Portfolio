@@ -12,10 +12,11 @@ import { de } from './content/de';
 export const profile = {
   name: 'Steven Avant',
   location: 'Virginia Beach, VA',
-  // The Formspree form that contact messages go to (the part after /f/ in its endpoint).
-  // It comes from the CONTACT_FORM_ID setting (the .env file locally, a repository variable on GitHub)
-  // so it isn't hard-coded here. See "Contact form setup" in the README.
-  contactFormId: (import.meta.env.CONTACT_FORM_ID ?? '') as string,
+  // The Formspree form that contact messages go to: the part after /f/ in its endpoint
+  // (https://formspree.io/f/abcdwxyz → 'abcdwxyz'). It isn't secret; it's visible in
+  // the page anyway, and it contains no email address. Leave it empty and the contact
+  // page shows a LinkedIn link instead of the form. See "Contact form setup" in the README.
+  contactFormId: '',
   // Shown in the footer.
   linkedin: 'https://www.linkedin.com/in/steven-avant-6469546a/',
 };
