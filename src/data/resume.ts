@@ -12,9 +12,9 @@ import { de } from './content/de';
 export const profile = {
   name: 'Steven Avant',
   location: 'Virginia Beach, VA',
-  // Where contact form messages are delivered, via formsubmit.co. It comes from the
-  // CONTACT_FORM_ID setting (the .env file locally, a repository variable on GitHub)
-  // so the address is never in this repository. See "Contact form setup" in the README.
+  // The Formspree form that contact messages go to (the part after /f/ in its endpoint).
+  // It comes from the CONTACT_FORM_ID setting (the .env file locally, a repository variable on GitHub)
+  // so it isn't hard-coded here. See "Contact form setup" in the README.
   contactFormId: (import.meta.env.CONTACT_FORM_ID ?? '') as string,
   // Shown in the footer.
   linkedin: 'https://www.linkedin.com/in/steven-avant-6469546a/',

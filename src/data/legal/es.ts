@@ -2,11 +2,11 @@
 import type { Legal } from './en';
 
 const github = '<a href="https://docs.github.com/site-policy/privacy-policies/github-general-privacy-statement" target="_blank" rel="noopener noreferrer">declaración de privacidad de GitHub</a>';
-const formsubmit = '<a href="https://formsubmit.co/privacy.pdf" target="_blank" rel="noopener noreferrer">política de privacidad de FormSubmit</a>';
+const formspree = '<a href="https://formspree.io/legal/privacy-policy" target="_blank" rel="noopener noreferrer">política de privacidad de Formspree</a>';
 const translation = 'Esta traducción se ofrece para tu comodidad. Si hay alguna diferencia, prevalece la versión en inglés.';
 
 export const es: Legal = {
-  updated: '1 de noviembre de 2026',
+  updated: '2 de noviembre de 2026',
 
   privacy: {
     title: 'Política de privacidad',
@@ -32,7 +32,7 @@ export const es: Legal = {
             'tu empresa, tu cargo y tu teléfono, si decides indicarlos',
             'el idioma de la página desde la que lo enviaste',
           ],
-          'El formulario se entrega mediante FormSubmit (formsubmit.co), un servicio de reenvío de formularios que hace llegar tu mensaje a la bandeja de entrada de Steven. FormSubmit lo trata según la ' + formsubmit + '.',
+          'El formulario se entrega mediante Formspree (formspree.io), un servicio de reenvío de formularios que hace llegar tu mensaje a la bandeja de entrada de Steven. Formspree lo trata según la ' + formspree + '.',
           'Tu información solo se usa para leer y responder a tu consulta y para dar seguimiento al trabajo que pueda surgir de ella. Nunca se vende, no se comparte con fines comerciales y no se añade a ninguna lista de correo.',
           'Si te encuentras en la Unión Europea o el Reino Unido: la base jurídica es tu solicitud de ser contactado y las medidas previas a un posible contrato contigo (art. 6.1.b del RGPD), así como el interés legítimo de Steven en responder a las consultas (art. 6.1.f).',
         ],
@@ -58,7 +58,7 @@ export const es: Legal = {
       {
         heading: 'Otros servicios y enlaces',
         body: [
-          'La tipografía y el código del sitio se sirven desde el propio sitio, así que tu navegador no se conecta a otras empresas mientras lo lees. La única conexión externa es con FormSubmit, y solo cuando envías el formulario de contacto.',
+          'La tipografía y el código del sitio se sirven desde el propio sitio, así que tu navegador no se conecta a otras empresas mientras lo lees. La única conexión externa es con Formspree, y solo cuando envías el formulario de contacto.',
           'El pie de página enlaza al perfil de LinkedIn de Steven. Al seguir ese enlace estarás en LinkedIn y se aplicará su propia política de privacidad.',
         ],
       },

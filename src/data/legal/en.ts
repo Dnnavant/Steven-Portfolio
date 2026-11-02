@@ -10,10 +10,10 @@ export type LegalDoc = { title: string; description: string; intro: string[]; se
 export type Legal = { updated: string; privacy: LegalDoc; terms: LegalDoc };
 
 const github = '<a href="https://docs.github.com/site-policy/privacy-policies/github-general-privacy-statement" target="_blank" rel="noopener noreferrer">GitHub Privacy Statement</a>';
-const formsubmit = '<a href="https://formsubmit.co/privacy.pdf" target="_blank" rel="noopener noreferrer">FormSubmit privacy policy</a>';
+const formspree = '<a href="https://formspree.io/legal/privacy-policy" target="_blank" rel="noopener noreferrer">Formspree privacy policy</a>';
 
 export const en: Legal = {
-  updated: 'November 1, 2026',
+  updated: 'November 2, 2026',
 
   privacy: {
     title: 'Privacy Policy',
@@ -38,7 +38,7 @@ export const en: Legal = {
             'your company, job title, and phone number, if you choose to give them',
             'the language of the page you sent it from',
           ],
-          'The form is delivered by FormSubmit (formsubmit.co), a form-forwarding service that passes your message on to Steven’s email inbox. FormSubmit handles it under the ' + formsubmit + '.',
+          'The form is delivered by Formspree (formspree.io), a form-forwarding service that passes your message on to Steven’s email inbox. Formspree handles it under the ' + formspree + '.',
           'Your information is used only to read and answer your inquiry and to follow up on any work that comes from it. It is never sold, shared for marketing, or added to a mailing list.',
           'If you are in the European Union or the United Kingdom: the legal basis is your request to be contacted and any steps taken before entering into a contract with you (GDPR Article 6(1)(b)), and Steven’s legitimate interest in answering inquiries (Article 6(1)(f)).',
         ],
@@ -64,7 +64,7 @@ export const en: Legal = {
       {
         heading: 'Other services and links',
         body: [
-          'The site’s font and code are served from the site itself, so your browser doesn’t contact other companies while you read it. The only outside connection is to FormSubmit, and only when you send the contact form.',
+          'The site’s font and code are served from the site itself, so your browser doesn’t contact other companies while you read it. The only outside connection is to Formspree, and only when you send the contact form.',
           'The footer links to Steven’s LinkedIn profile. Once you follow it you are on LinkedIn, and LinkedIn’s own privacy policy applies.',
         ],
       },

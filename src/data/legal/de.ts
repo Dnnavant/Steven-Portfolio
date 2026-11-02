@@ -2,11 +2,11 @@
 import type { Legal } from './en';
 
 const github = '<a href="https://docs.github.com/site-policy/privacy-policies/github-general-privacy-statement" target="_blank" rel="noopener noreferrer">Datenschutzerklärung von GitHub</a>';
-const formsubmit = '<a href="https://formsubmit.co/privacy.pdf" target="_blank" rel="noopener noreferrer">Datenschutzerklärung von FormSubmit</a>';
+const formspree = '<a href="https://formspree.io/legal/privacy-policy" target="_blank" rel="noopener noreferrer">Datenschutzerklärung von Formspree</a>';
 const translation = 'Diese Übersetzung dient Ihrer Information. Bei Abweichungen gilt die englische Fassung.';
 
 export const de: Legal = {
-  updated: '1. November 2026',
+  updated: '2. November 2026',
 
   privacy: {
     title: 'Datenschutzerklärung',
@@ -32,7 +32,7 @@ export const de: Legal = {
             'Ihr Unternehmen, Ihre Position und Ihre Telefonnummer, sofern Sie diese angeben',
             'die Sprache der Seite, von der aus Sie die Nachricht gesendet haben',
           ],
-          'Das Formular wird über FormSubmit (formsubmit.co) zugestellt, einen Weiterleitungsdienst, der Ihre Nachricht an Stevens E-Mail-Postfach weitergibt. FormSubmit verarbeitet sie gemäß der ' + formsubmit + '.',
+          'Das Formular wird über Formspree (formspree.io) zugestellt, einen Weiterleitungsdienst, der Ihre Nachricht an Stevens E-Mail-Postfach weitergibt. Formspree verarbeitet sie gemäß der ' + formspree + '.',
           'Ihre Daten werden nur verwendet, um Ihre Anfrage zu lesen und zu beantworten und um sich daraus ergebende Aufträge zu begleiten. Sie werden niemals verkauft, nicht für Werbung weitergegeben und in keinen Verteiler aufgenommen.',
           'Wenn Sie sich in der Europäischen Union oder im Vereinigten Königreich befinden: Rechtsgrundlage ist Ihre Kontaktanfrage und die Durchführung vorvertraglicher Maßnahmen (Art. 6 Abs. 1 lit. b DSGVO) sowie Stevens berechtigtes Interesse an der Beantwortung von Anfragen (Art. 6 Abs. 1 lit. f DSGVO).',
         ],
@@ -58,7 +58,7 @@ export const de: Legal = {
       {
         heading: 'Andere Dienste und Links',
         body: [
-          'Schrift und Code der Website werden von der Website selbst ausgeliefert, sodass Ihr Browser beim Lesen keine Verbindung zu anderen Unternehmen aufbaut. Die einzige externe Verbindung besteht zu FormSubmit, und zwar nur, wenn Sie das Kontaktformular absenden.',
+          'Schrift und Code der Website werden von der Website selbst ausgeliefert, sodass Ihr Browser beim Lesen keine Verbindung zu anderen Unternehmen aufbaut. Die einzige externe Verbindung besteht zu Formspree, und zwar nur, wenn Sie das Kontaktformular absenden.',
           'Die Fußzeile verlinkt auf Stevens LinkedIn-Profil. Wenn Sie dem Link folgen, befinden Sie sich auf LinkedIn, und es gilt die Datenschutzerklärung von LinkedIn.',
         ],
       },

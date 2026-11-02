@@ -59,18 +59,15 @@ As visitors scroll the home page, the key item nearest the middle of the screen 
 
 ## Contact form setup
 
-GitHub Pages can't send email, so the form goes through [FormSubmit](https://formsubmit.co), which forwards each message to Steven. The delivery address is a setting called `CONTACT_FORM_ID` and is deliberately kept out of the code, so it never shows up in this repository.
+GitHub Pages can't send email, so the form goes through [Formspree](https://formspree.io), which emails each message to the inbox the Formspree form was created for. The site only contains the form's random ID, never an email address.
 
-- **On your computer:** create a file named `.env` in this folder containing `CONTACT_FORM_ID=` followed by the address. Git ignores this file.
-- **On GitHub:** open **Settings → Secrets and variables → Actions → Variables**, choose **New repository variable**, name it `CONTACT_FORM_ID`, and enter the value.
+1. Sign in at formspree.io and create a new form (for example "Steven Avant portfolio"). Formspree delivers to the email address you choose for that form and asks that address to confirm once.
+2. Copy the form's ID: the part after `/f/` in its endpoint (`https://formspree.io/f/abcdwxyz` → `abcdwxyz`).
+3. Put the ID in the `CONTACT_FORM_ID` setting:
+   - **On your computer:** in the `.env` file in this folder: `CONTACT_FORM_ID=abcdwxyz`. Git ignores this file.
+   - **On GitHub:** open **Settings → Secrets and variables → Actions**, go to the **Variables** tab (not Secrets), choose **New repository variable**, name it `CONTACT_FORM_ID`, and paste the ID.
 
-If the setting is missing, the build stops with a message pointing here, rather than publishing a form that goes nowhere.
-
-**Hide Steven's address before the site goes live.** At first the value is Steven's email address, and anyone viewing the contact page's source could see it. To replace it:
-
-1. Run the site locally (`npm run dev`) and send one test message from the contact page.
-2. FormSubmit emails Steven an activation link. Once he clicks it, the activation page and his emails from FormSubmit show a random ID such as `a1b2c3d4e5f6...`.
-3. Use that ID as the `CONTACT_FORM_ID` value, both in `.env` and on GitHub. Messages still reach Steven, and his address no longer appears anywhere on the site.
+If the setting is missing or isn't a valid form ID, the build stops with a message pointing here, rather than publishing a form that goes nowhere. Every message also appears in the Formspree dashboard. In the form's settings, you can limit submissions to the site's domain (`dnnavant.github.io`) so other sites can't use the form.
 
 ## Deploy to GitHub Pages
 

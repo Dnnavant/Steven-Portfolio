@@ -1,22 +1,22 @@
 ---
 // The contact page, shared by every language. Job offers, contract work, and private
 // jobs all come in through this form. GitHub Pages can't send email, so submissions go
-// to FormSubmit (formsubmit.co), which forwards them to Steven. The very first
-// submission sends a one-time activation email; messages are delivered once the link
-// in it is clicked. See profile.contactFormId.
+// to Formspree (formspree.io), which emails them to the inbox the form was created
+// for. Only the form's random ID is in the page, never an email address. See
+// profile.contactFormId.
 import Base from '../layouts/Base.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import { profile } from '../data/resume';
-import { languages, pagePath, useI18n, withPageLinks } from '../i18n/ui';
+import { languages, useI18n, withPageLinks } from '../i18n/ui';
 
 const { lang, t } = useI18n(Astro.currentLocale);
-if (!profile.contactFormId) {
-  throw new Error('CONTACT_FORM_ID is not set, so the contact form has nowhere to send messages. See "Contact form setup" in the README.');
+if (!/^[A-Za-z0-9]+$/.test(profile.contactFormId)) {
+  throw new Error(
+    'CONTACT_FORM_ID must be a Formspree form ID (the part after /f/ in the form\'s endpoint, e.g. abcdwxyz). See "Contact form setup" in the README.',
+  );
 }
-const endpoint = `https://formsubmit.co/${profile.contactFormId}`;
-// Where FormSubmit sends visitors back to when the form is posted without JavaScript.
-const thanksUrl = new URL(`${pagePath(lang, 'contact')}?sent=1`, Astro.site).href;
+const endpoint = `https://formspree.io/f/${profile.contactFormId}`;
 
 const field =
   'mt-1.5 block w-full rounded-md border border-rule bg-field px-3.5 py-3 text-base text-ink placeholder:text-muted/70 focus:border-amber focus:outline-none focus-visible:outline-2 focus-visible:outline-amber';
@@ -61,12 +61,10 @@ const optional = `<span class="font-normal text-muted">${t.optional}</span>`;
             data-msg-send={t.send}
           >
             <input type="hidden" name="_subject" value="New message from your portfolio" data-subject />
-            <input type="hidden" name="_template" value="table" />
-            <input type="hidden" name="_next" value={thanksUrl} />
             <!-- Tells Steven which language the visitor wrote in. -->
             <input type="hidden" name="language" value={languages[lang].label} />
-            <!-- Honeypot: real visitors never see or fill this, bots usually do. -->
-            <input type="text" name="_honey" class="hidden" tabindex="-1" autocomplete="off" aria-hidden="true" />
+            <!-- Honeypot: real visitors never see or fill this, bots usually do. Formspree also drops these. -->
+            <input type="text" name="_gotcha" class="hidden" tabindex="-1" autocomplete="off" aria-hidden="true" />
 
             <div class="grid gap-5 sm:grid-cols-2">
               <div>
@@ -145,9 +143,6 @@ const optional = `<span class="font-normal text-muted">${t.optional}</span>`;
     status.classList.add(...(ok ? ['border-amber'] : ['border-red-600', 'text-red-700']));
   };
 
-  // Back from a no-JavaScript submission.
-  if (new URLSearchParams(location.search).has('sent')) show(true, msg.msgSent);
-
   // Spam guards. Bots tend to fill the hidden honeypot field or submit within a second or
   // two of the page loading; both get a fake "sent" so they learn nothing. People who send
   // one message have to wait a minute before sending another.
@@ -164,7 +159,7 @@ const optional = `<span class="font-normal text-muted">${t.optional}</span>`;
   form?.addEventListener('submit', async (e) => {
     e.preventDefault();
     const data = new FormData(form);
-    if (data.get('_honey') || Date.now() - loadedAt < 3000) {
+    if (data.get('_gotcha') || Date.now() - loadedAt < 3000) {
       form.reset();
       show(true, msg.msgSent);
       return;
@@ -185,14 +180,13 @@ const optional = `<span class="font-normal text-muted">${t.optional}</span>`;
       submit.textContent = msg.msgSending ?? '';
     }
     try {
-      // FormSubmit's AJAX endpoint returns JSON instead of redirecting.
-      const res = await fetch(form.action.replace('formsubmit.co/', 'formsubmit.co/ajax/'), {
+      // Asking for JSON makes Formspree reply with a status instead of redirecting.
+      const res = await fetch(form.action, {
         method: 'POST',
         headers: { Accept: 'application/json' },
         body: data,
       });
-      const json = await res.json().catch(() => ({}));
-      if (!res.ok || String(json.success) !== 'true') throw new Error(json.message);
+      if (!res.ok) throw new Error(String(res.status));
       form.reset();
       try {
         sessionStorage.setItem('contact-sent-at', String(Date.now()));
