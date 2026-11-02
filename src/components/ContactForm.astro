@@ -1,0 +1,190 @@
+---
+// The contact form, used on the home page (basic: name, email, message) and on the
+// contact page (full). GitHub Pages can't send email, so submissions go to Formspree
+// (formspree.io), which emails them to the inbox the Formspree form was created for.
+// Only the form's random ID is in the page, never an email address.
+//
+// Connect it by pasting the Formspree link into `formspree` in src/data/resume.ts.
+// Until then the form still shows; sending explains it isn't connected yet.
+import { profile } from '../data/resume';
+import { languages, useI18n, withPageLinks } from '../i18n/ui';
+
+interface Props {
+  basic?: boolean;
+}
+
+const { basic = false } = Astro.props;
+const { lang, t } = useI18n(Astro.currentLocale);
+
+// Accepts the full endpoint (https://formspree.io/f/abcdwxyz) or just the ID (abcdwxyz).
+const formId = profile.formspree.trim().replace(/^https?:\/\/formspree\.io\/f\//, '').replace(/\/+$/, '');
+if (formId && !/^[A-Za-z0-9]+$/.test(formId)) {
+  throw new Error(
+    `profile.formspree should be a Formspree link like https://formspree.io/f/abcdwxyz, not "${profile.formspree}". See "Contact form setup" in the README.`,
+  );
+}
+const endpoint = formId ? `https://formspree.io/f/${formId}` : undefined;
+
+const field =
+  'mt-1.5 block w-full rounded-md border border-rule bg-field px-3.5 py-3 text-base text-ink placeholder:text-muted/70 focus:border-amber focus:outline-none focus-visible:outline-2 focus-visible:outline-amber';
+const label = 'block font-semibold [font-stretch:108%]';
+const optional = `<span class="font-normal text-muted">${t.optional}</span>`;
+---
+
+<form
+  action={endpoint}
+  method="POST"
+  class="space-y-5"
+  data-contact-form
+  data-connected={endpoint ? 'true' : 'false'}
+  data-msg-sent={t.sent}
+  data-msg-error={t.sendError}
+  data-msg-cooldown={t.cooldown}
+  data-msg-sending={t.sending}
+  data-msg-send={t.send}
+  data-msg-not-connected={t.formNotConnected}
+>
+  <input type="hidden" name="_subject" value="New message from your portfolio" data-subject />
+  <!-- Tells Steven which language the visitor wrote in. -->
+  <input type="hidden" name="language" value={languages[lang].label} />
+  <!-- Honeypot: real visitors never see or fill this, bots usually do. Formspree also drops these. -->
+  <input type="text" name="_gotcha" class="hidden" tabindex="-1" autocomplete="off" aria-hidden="true" />
+
+  <div class="grid gap-5 sm:grid-cols-2">
+    <div>
+      <label for="name" class={label}>{t.fieldName}</label>
+      <input id="name" name="name" type="text" required maxlength="100" autocomplete="name" class={field} />
+    </div>
+    <div>
+      <label for="email" class={label}>{t.fieldEmail}</label>
+      <input id="email" name="email" type="email" required maxlength="254" autocomplete="email" class={field} />
+    </div>
+    {!basic && (
+      <>
+        <div class="sm:col-span-2">
+          <label for="opportunity" class={label}>{t.fieldType}</label>
+          <select id="opportunity" name="opportunity" required class={field}>
+            {t.types.map((o) => <option value={o.value}>{o.label}</option>)}
+          </select>
+        </div>
+        <div>
+          <label for="company" class={label}>{t.fieldCompany} <Fragment set:html={optional} /></label>
+          <input id="company" name="company" type="text" maxlength="120" autocomplete="organization" class={field} />
+        </div>
+        <div>
+          <label for="title" class={label}>{t.fieldTitle} <Fragment set:html={optional} /></label>
+          <input id="title" name="title" type="text" maxlength="120" autocomplete="organization-title" class={field} />
+        </div>
+        <div class="sm:col-span-2">
+          <label for="phone" class={label}>{t.fieldPhone} <Fragment set:html={optional} /></label>
+          <input id="phone" name="phone" type="tel" maxlength="30" autocomplete="tel" class={field} />
+        </div>
+      </>
+    )}
+  </div>
+
+  <div>
+    <label for="message" class={label}>{t.fieldMessage}</label>
+    <textarea
+      id="message"
+      name="message"
+      rows={basic ? 4 : 6}
+      required
+      maxlength="4000"
+      class={field}
+      placeholder={t.messagePlaceholder}
+    ></textarea>
+  </div>
+
+  <div class="flex flex-wrap items-center gap-4">
+    <button type="submit" class="btn btn-primary disabled:cursor-wait disabled:opacity-60" data-submit>
+      {t.send}
+    </button>
+    <p class="text-[0.95rem] text-muted">{t.sendNote}</p>
+  </div>
+  <p
+    class="text-[0.95rem] text-muted [&_a]:underline [&_a]:decoration-amber [&_a]:decoration-2 [&_a]:underline-offset-4 [&_a:hover]:text-amber-ink"
+    set:html={withPageLinks(t.privacyNote, lang)}
+  />
+
+  <p role="status" aria-live="polite" class="hidden rounded-md border px-4 py-3 font-semibold" data-form-status></p>
+</form>
+
+<script>
+  const form = document.querySelector<HTMLFormElement>('[data-contact-form]');
+  const status = form?.querySelector<HTMLElement>('[data-form-status]');
+  const submit = form?.querySelector<HTMLButtonElement>('[data-submit]');
+  const subject = form?.querySelector<HTMLInputElement>('[data-subject]');
+  // Messages come from the page so they match its language.
+  const msg = form?.dataset ?? {};
+
+  const show = (ok: boolean, text = '') => {
+    if (!status) return;
+    status.textContent = text;
+    status.classList.remove('hidden', 'border-amber', 'border-red-600', 'text-red-700');
+    status.classList.add(...(ok ? ['border-amber'] : ['border-red-600', 'text-red-700']));
+  };
+
+  // Spam guards. Bots tend to fill the hidden honeypot field or submit within a second or
+  // two of the page loading; both get a fake "sent" so they learn nothing. People who send
+  // one message have to wait a minute before sending another.
+  const loadedAt = Date.now();
+  const COOLDOWN_MS = 60_000;
+  const lastSent = () => {
+    try {
+      return Number(sessionStorage.getItem('contact-sent-at')) || 0;
+    } catch {
+      return 0;
+    }
+  };
+
+  form?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (msg.connected !== 'true') {
+      show(false, msg.msgNotConnected);
+      return;
+    }
+    const data = new FormData(form);
+    if (data.get('_gotcha') || Date.now() - loadedAt < 3000) {
+      form.reset();
+      show(true, msg.msgSent);
+      return;
+    }
+    if (Date.now() - lastSent() < COOLDOWN_MS) {
+      show(false, msg.msgCooldown);
+      return;
+    }
+
+    // The subject is for Steven, so it stays in English whatever the page language.
+    const who = String(data.get('company') || '').trim() || String(data.get('name') || '').trim();
+    const kind = String(data.get('opportunity') || 'Message');
+    if (subject) subject.value = `${kind}: ${who} is interested in working with you`;
+    data.set('_subject', subject?.value ?? '');
+
+    if (submit) {
+      submit.disabled = true;
+      submit.textContent = msg.msgSending ?? '';
+    }
+    try {
+      // Asking for JSON makes Formspree reply with a status instead of redirecting.
+      const res = await fetch(form.action, {
+        method: 'POST',
+        headers: { Accept: 'application/json' },
+        body: data,
+      });
+      if (!res.ok) throw new Error(String(res.status));
+      form.reset();
+      try {
+        sessionStorage.setItem('contact-sent-at', String(Date.now()));
+      } catch {}
+      show(true, msg.msgSent);
+    } catch {
+      show(false, msg.msgError);
+    } finally {
+      if (submit) {
+        submit.disabled = false;
+        submit.textContent = msg.msgSend ?? '';
+      }
+    }
+  });
+</script>

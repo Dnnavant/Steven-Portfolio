@@ -68,8 +68,8 @@ const strings = {
 
     contactTitle: 'Get in touch',
     contactBody:
-      'Have a job offer, a contract, or a private job in mind? Send a message through the contact page and it comes straight to me.',
-    contactLink: "Let's talk",
+      'Have a job offer, a contract, or a private job in mind? Send me a message here and it comes straight to me.',
+    contactFull: 'Want to share more details? Use the full contact form',
 
     footerContact: 'Contact',
     footerPrivacy: 'Privacy',
@@ -105,10 +105,8 @@ const strings = {
       { value: 'Consulting', label: 'Consulting' },
       { value: 'Something else', label: 'Something else' },
     ],
-    // Shown instead of the form until profile.contactFormId is filled in.
-    formPendingTitle: 'The contact form is almost ready',
-    formPendingBody: 'It will be up shortly. In the meantime, you can reach Steven on LinkedIn.',
-    formPendingLink: 'Message Steven on LinkedIn',
+    // Shown when someone sends before profile.formspree is filled in.
+    formNotConnected: "This form isn't connected yet. Please reach Steven on LinkedIn for now (link at the bottom of the page).",
     send: 'Send message',
     privacyNote: 'Steven uses your details only to reply. See the {privacy}.',
     sending: 'Sending…',
@@ -178,8 +176,8 @@ const strings = {
 
     contactTitle: 'Hablemos',
     contactBody:
-      '¿Tienes una oferta de empleo, un contrato o un trabajo particular en mente? Envía un mensaje desde la página de contacto y me llegará directamente.',
-    contactLink: 'Escríbeme',
+      '¿Tienes una oferta de empleo, un contrato o un trabajo particular en mente? Envíame un mensaje aquí y me llegará directamente.',
+    contactFull: '¿Quieres dar más detalles? Usa el formulario de contacto completo',
 
     footerContact: 'Contacto',
     footerPrivacy: 'Privacidad',
@@ -214,9 +212,7 @@ const strings = {
       { value: 'Consulting', label: 'Consultoría' },
       { value: 'Something else', label: 'Otro asunto' },
     ],
-    formPendingTitle: 'El formulario de contacto estará listo muy pronto',
-    formPendingBody: 'Lo activaremos en breve. Mientras tanto, puedes contactar con Steven en LinkedIn.',
-    formPendingLink: 'Escribir a Steven en LinkedIn',
+    formNotConnected: 'Este formulario aún no está conectado. Por ahora, contacta con Steven en LinkedIn (enlace al final de la página).',
     send: 'Enviar mensaje',
     privacyNote: 'Steven solo usa tus datos para responderte. Consulta la {privacy}.',
     sending: 'Enviando…',
@@ -286,8 +282,8 @@ const strings = {
 
     contactTitle: 'Kontakt aufnehmen',
     contactBody:
-      'Sie haben ein Stellenangebot, einen Auftrag oder einen privaten Auftrag? Schreiben Sie mir über die Kontaktseite, die Nachricht kommt direkt bei mir an.',
-    contactLink: 'Nachricht schreiben',
+      'Sie haben ein Stellenangebot, einen Auftrag oder einen privaten Auftrag? Schreiben Sie mir hier, die Nachricht kommt direkt bei mir an.',
+    contactFull: 'Mehr Details? Zum vollständigen Kontaktformular',
 
     footerContact: 'Kontakt',
     footerPrivacy: 'Datenschutz',
@@ -322,9 +318,7 @@ const strings = {
       { value: 'Consulting', label: 'Beratung' },
       { value: 'Something else', label: 'Etwas anderes' },
     ],
-    formPendingTitle: 'Das Kontaktformular ist bald bereit',
-    formPendingBody: 'Es wird in Kürze freigeschaltet. Bis dahin erreichen Sie Steven über LinkedIn.',
-    formPendingLink: 'Steven auf LinkedIn schreiben',
+    formNotConnected: 'Dieses Formular ist noch nicht verbunden. Bitte erreichen Sie Steven vorerst über LinkedIn (Link unten auf der Seite).',
     send: 'Nachricht senden',
     privacyNote: 'Steven nutzt Ihre Angaben nur, um Ihnen zu antworten. Siehe {privacy}.',
     sending: 'Wird gesendet…',
